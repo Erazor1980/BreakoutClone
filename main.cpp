@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+#include <cstdlib>
+#include <ctime>
 
 #include "constants.h"
 #include "background.h"
@@ -19,6 +21,9 @@ void draw_text(const std::string textToDisplay, const sf::Vector2f &pos, const s
 
 int main()
 {
+    // Seed the random number generator once to get different results each run
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
     sf::Font font;
     if (!font.openFromFile("arial.ttf"))
     {
