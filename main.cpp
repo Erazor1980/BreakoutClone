@@ -1,18 +1,11 @@
-#include <SFML/Graphics.hpp>
 #include <iostream>
 #include <string>
 
-#include "constants.h"
+#include "background.h"
 
-void draw_text(const std::string textToDisplay, const sf::Vector2f &pos, const sf::Color &color, sf::RenderWindow &window)
+
+void draw_text(const std::string textToDisplay, const sf::Vector2f &pos, const sf::Color &color, const sf::Font &font, sf::RenderWindow &window)
 {
-    sf::Font font;
-    if (!font.openFromFile("arial.ttf"))
-    {
-        std::cerr << "Could not load font\n";
-        return;
-    }
-
     sf::Text text(font);
     text.setString(textToDisplay);
     text.setCharacterSize(24);
@@ -24,42 +17,35 @@ void draw_text(const std::string textToDisplay, const sf::Vector2f &pos, const s
 
 int main()
 {
+    sf::Font font;
+    if (!font.openFromFile("arial.ttf"))
+    {
+        std::cerr << "Could not load font\n";
+        return 1;
+    }
+
+    Background bg(0.0f, 0.0f);
+
     sf::RenderWindow window(sf::VideoMode({ constants::window_width, constants::window_height}), "Breakout Clone");
     window.setFramerateLimit(60);
 
-    sf::RectangleShape rec(sf::Vector2f(20.f, 100.f));
-    rec.setFillColor(sf::Color::Blue);
-    rec.setPosition({ 100.f, 100.f });
-
-    
-
-    std::uint64_t counter = 0;
-    sf::Clock totalClock;
-
+ 
     while (window.isOpen())
     {
         while (const std::optional event = window.pollEvent())
         {
-            if (event->is<sf::Event::Closed>())
+            if (event->is<sf::Event::Closed>() || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
             {
                 window.close();
             }
         }
 
-        ++counter;
+        // updates
+        bg.update();
 
-        float seconds = totalClock.getElapsedTime().asSeconds();
-        float fps = 0.f;
-
-        if (seconds > 0.f)
-        {
-            fps = static_cast<float>(counter) / seconds;
-        }
-
-
+        // displaying
         window.clear();
-        window.draw(rec);
-        draw_text("fps = " + std::to_string(fps), { 20.0f, 20.0f }, sf::Color::White, window);
+        bg.draw(window);
         window.display();
     }
 }
