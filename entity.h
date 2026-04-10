@@ -12,6 +12,7 @@ public:
     Entity(const sf::Texture& texture)
         : m_sprite(texture)
     {
+        m_sprite.setOrigin(m_sprite.getLocalBounds().getCenter());
     }
 
     virtual void update() = 0;

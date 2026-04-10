@@ -2,14 +2,16 @@
 
 #include "entity.h"
 
-class Background : public Entity
+class Ball : public Entity
 {
 public:
-	Background(float x, float y);
+	Ball(float x, float y, float speed);
 
 	void update() override;
 	void draw(sf::RenderWindow& wnd) override;
-
 private:
 	static sf::Texture m_texture;
+
+	float m_speed;
+	sf::Vector2f m_velocity;	
 };
