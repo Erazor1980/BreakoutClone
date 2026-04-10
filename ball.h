@@ -9,6 +9,8 @@ public:
 
 	void update() override;
 	void draw(sf::RenderWindow& wnd) override;
+
+	void reset(float x, float y);
 private:
 	static sf::Texture m_texture;
 

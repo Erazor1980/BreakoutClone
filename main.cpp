@@ -48,6 +48,11 @@ int main()
             }
         }
 
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R))
+        {
+            ball.reset(constants::window_width / 2.0f, constants::window_height / 2.0f);
+        }
+
         // updates
         bg.update();
         ball.update();
