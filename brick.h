@@ -10,6 +10,8 @@ public:
 	void update() override;
 	void draw(sf::RenderWindow& wnd) override;
 
+	void damage();
+
 private:
 	static sf::Texture m_texture;
 	int m_strength;

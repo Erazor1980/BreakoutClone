@@ -2,6 +2,7 @@
 #include <string>
 #include <cstdlib>
 #include <ctime>
+#include <algorithm>
 
 #include "constants.h"
 #include "background.h"
@@ -45,10 +46,26 @@ void create_bricks(std::vector<Brick>& vBricks)
             float x = startX + col * (constants::brick_width + spacing);
             float y = startY + row * (constants::brick_height + spacing);
 
-            Brick brick(x, y, 3);
+            Brick brick(x, y, rand() % 4);
 
             vBricks.push_back(brick);
         }
+    }
+}
+
+bool is_overlapping(const Entity& e1, const Entity& e2)
+{
+    const auto bb_e1 = e1.get_bounding_box();
+    const auto bb_e2 = e2.get_bounding_box();
+
+    return bb_e1.findIntersection(bb_e2).has_value();
+}
+
+void handle_collision(const Ball& ball, Brick& brick)
+{
+    if (is_overlapping(ball, brick))
+    {
+        brick.damage();
     }
 }
 
@@ -102,7 +119,10 @@ int main()
         for (auto& b : vBricks)
         {
             b.update();
+            handle_collision(ball, b);
         }
+
+        vBricks.erase(std::remove_if(std::begin(vBricks), std::end(vBricks), [](const Brick& b) {return b.is_destroyed(); }), std::end(vBricks));
 
         // displaying
         window.clear();
