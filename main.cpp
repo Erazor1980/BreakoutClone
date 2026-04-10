@@ -6,6 +6,7 @@
 #include "constants.h"
 #include "background.h"
 #include "ball.h"
+#include "brick.h"
 
 
 void draw_text(const std::string textToDisplay, const sf::Vector2f &pos, const sf::Color &color, const sf::Font &font, sf::RenderWindow &window)
@@ -33,10 +34,12 @@ int main()
 
     Background bg(0.0f, 0.0f);
     Ball ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed);
+    Brick brick(200, 200, 5);
 
     sf::RenderWindow window(sf::VideoMode({ constants::window_width, constants::window_height}), "Breakout Clone");
     window.setFramerateLimit(60);
 
+    bool bRPressedLastFrame = false;
  
     while (window.isOpen())
     {
@@ -48,19 +51,27 @@ int main()
             }
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R))
+        bool bRCurrentlyPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R);
+
+        if (bRCurrentlyPressed && !bRPressedLastFrame)
         {
             ball.reset(constants::window_width / 2.0f, constants::window_height / 2.0f);
         }
 
+        bRPressedLastFrame = bRCurrentlyPressed;
+
+        
+
         // updates
         bg.update();
         ball.update();
+        brick.update();
 
         // displaying
         window.clear();
         bg.draw(window);
         ball.draw(window);
+        brick.draw(window);
         window.display();
     }
 }
