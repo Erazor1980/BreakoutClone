@@ -6,6 +6,7 @@ sf::Texture Ball::m_texture("images/ball.png");
 Ball::Ball(float x, float y, float speed) : Entity(m_texture)
 {
 	m_speed = speed;
+	m_sprite.setOrigin(m_sprite.getLocalBounds().getCenter());
 
 	reset(x, y);
 }
@@ -27,7 +28,9 @@ void Ball::update()
 	// move ball to new position
 	m_sprite.move(m_velocity);
 
-	//m_velocity.normalized
+	//todo
+	// maybe make sure, that after moving the ball is not partially outside of the screen! which can happen right now, if it is too fast
+	
 }
 
 void Ball::reset(float x, float y)

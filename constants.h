@@ -6,6 +6,6 @@ struct constants {
 	static constexpr float ball_speed{ 10.0 };
 	static constexpr int brick_width{ 100 };
 	static constexpr int brick_height{ 34 };
-	static constexpr int brick_cols{ 8 };
+	static constexpr int brick_cols{ 6 };
 	static constexpr int brick_rows{ 4 };	
 };

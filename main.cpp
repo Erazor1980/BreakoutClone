@@ -20,6 +20,38 @@ void draw_text(const std::string textToDisplay, const sf::Vector2f &pos, const s
     window.draw(text);
 }
 
+void create_bricks(std::vector<Brick>& vBricks)
+{
+    // we start brick width away from the sides, and 3* brick height away from the top
+
+    // clear existing bricks
+    vBricks.clear();
+
+    // reserve memory (performance, avoids reallocations)
+    vBricks.reserve(constants::brick_cols * constants::brick_rows);
+
+    const int spacing = 5;
+
+    // start offsets
+    const float totalWidth = constants::brick_cols * constants::brick_width + (constants::brick_cols - 1) * spacing;
+
+    const float startX = (constants::window_width - totalWidth) * 0.5f;
+    const float startY = static_cast<float>(constants::brick_height * 2);
+
+    for (int row = 0; row < constants::brick_rows; ++row)
+    {
+        for (int col = 0; col < constants::brick_cols; ++col)
+        {            
+            float x = startX + col * (constants::brick_width + spacing);
+            float y = startY + row * (constants::brick_height + spacing);
+
+            Brick brick(x, y, 3);
+
+            vBricks.push_back(brick);
+        }
+    }
+}
+
 int main()
 {
     // Seed the random number generator once to get different results each run
@@ -35,6 +67,8 @@ int main()
     Background bg(0.0f, 0.0f);
     Ball ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed);
     Brick brick(200, 200, 5);
+    std::vector<Brick> vBricks;
+    create_bricks(vBricks);
 
     sf::RenderWindow window(sf::VideoMode({ constants::window_width, constants::window_height}), "Breakout Clone");
     window.setFramerateLimit(60);
@@ -65,13 +99,19 @@ int main()
         // updates
         bg.update();
         ball.update();
-        brick.update();
+        for (auto& b : vBricks)
+        {
+            b.update();
+        }
 
         // displaying
         window.clear();
         bg.draw(window);
         ball.draw(window);
-        brick.draw(window);
+        for (auto& b : vBricks)
+        {
+            b.draw(window);
+        }
         window.display();
     }
 }
