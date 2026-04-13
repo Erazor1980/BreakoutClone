@@ -16,7 +16,6 @@ void Ball::update()
 	// move ball to new position
 	m_sprite.move(m_velocity);
 
-
 	// check for wall bounces
 	const auto bounds = m_sprite.getGlobalBounds();
 	const float halflSize = bounds.size.x * 0.5f;

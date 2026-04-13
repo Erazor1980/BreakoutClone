@@ -8,6 +8,7 @@
 #include "background.h"
 #include "ball.h"
 #include "brick.h"
+#include "paddle.h"
 
 
 void draw_text(const std::string textToDisplay, const sf::Vector2f &pos, const sf::Color &color, const sf::Font &font, sf::RenderWindow &window)
@@ -108,6 +109,7 @@ int main()
     Brick brick(200, 200, 5);
     std::vector<Brick> vBricks;
     create_bricks(vBricks);
+    Paddle paddle(constants::window_width / 2.0f, constants::window_height - 1.3 * constants::paddle_height, constants::paddle_speed);
 
     sf::RenderWindow window(sf::VideoMode({ constants::window_width, constants::window_height}), "Breakout Clone");
     window.setFramerateLimit(60);
@@ -124,17 +126,17 @@ int main()
             }
         }
 
+        // Reset game
         bool bRCurrentlyPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R);
-
         if (bRCurrentlyPressed && !bRPressedLastFrame)
         {
             ball.reset(constants::window_width / 2.0f, constants::window_height / 2.0f);
+            vBricks.clear();
+            create_bricks(vBricks);
         }
-
         bRPressedLastFrame = bRCurrentlyPressed;
 
         
-
         // updates
         bg.update();
         ball.update();
@@ -143,6 +145,7 @@ int main()
             b.update();
             handle_collision(ball, b);
         }
+        paddle.update();
 
         vBricks.erase(std::remove_if(std::begin(vBricks), std::end(vBricks), [](const Brick& b) {return b.is_destroyed(); }), std::end(vBricks));
 
@@ -154,6 +157,7 @@ int main()
         {
             b.draw(window);
         }
+        paddle.draw(window);
         window.display();
     }
 }
