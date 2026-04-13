@@ -18,6 +18,7 @@ void draw_text(const std::string textToDisplay, const sf::Vector2f &pos, const s
     text.setCharacterSize(size);
     text.setFillColor(color);
     text.setPosition(pos);
+    text.setOutlineThickness(3);
 
     window.draw(text);
 }
@@ -137,6 +138,8 @@ void handle_collision(Ball& ball, Paddle& paddle)
     ball.bounceFromPaddle(relativeHitX);
 }
 
+enum class game_state { paused, running, game_over };
+
 int main()
 {
     // Seed the random number generator once to get different results each run
@@ -150,6 +153,7 @@ int main()
     }
 
     int lives = 3;
+    game_state gs = game_state::running;
 
     Background bg(0.0f, 0.0f);
     std::vector<Ball> vBalls;
@@ -159,12 +163,13 @@ int main()
     Brick brick(200, 200, 5);
     std::vector<Brick> vBricks;
     create_bricks(vBricks);
-    Paddle paddle(constants::window_width / 2.0f, constants::window_height - 1.3 * constants::paddle_height, constants::paddle_speed);
+    Paddle paddle(constants::window_width / 2.0f, constants::window_height - int(1.3 * constants::paddle_height), constants::paddle_speed);
 
     sf::RenderWindow window(sf::VideoMode({ constants::window_width, constants::window_height}), "Breakout Clone");
     window.setFramerateLimit(60);
 
     bool bRPressedLastFrame = false;
+    bool bPPressedLastFrame = false;
  
     while (window.isOpen())
     {
@@ -184,35 +189,67 @@ int main()
             //ball.reset(constants::window_width / 2.0f, constants::window_height / 2.0f);
             vBalls.emplace_back(Ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed));
             vBalls.emplace_back(Ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed));
-            paddle.reset(constants::window_width / 2.0f, constants::window_height - 1.3 * constants::paddle_height);
+            paddle.reset(constants::window_width / 2.0f, constants::window_height - int(1.3 * constants::paddle_height));
             vBricks.clear();
             create_bricks(vBricks);
+            gs = game_state::running;
+            lives = 3;
         }
         bRPressedLastFrame = bRCurrentlyPressed;
 
-        
-        // updates
-        bg.update();
-        for (auto& ball : vBalls)
+        // Pause game
+        bool bPCurrentlyPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P);
+        if (bPCurrentlyPressed && !bPPressedLastFrame)
         {
-            ball.update();
+            if (gs == game_state::running)
+            {
+                gs = game_state::paused;
+            }
+            else if (gs == game_state::paused)
+            {
+                gs = game_state::running;
+            }
         }
-        for (auto& brick : vBricks)
-        {
-            brick.update();
+        bPPressedLastFrame = bPCurrentlyPressed;
+
+        if (gs == game_state::running)
+        {        
+            // updates
+            bg.update();
             for (auto& ball : vBalls)
             {
-                handle_collision(ball, brick);
+                ball.update();
+            }
+            for (auto& brick : vBricks)
+            {
+                brick.update();
+                for (auto& ball : vBalls)
+                {
+                    handle_collision(ball, brick);
+                }
+            }
+            paddle.update();
+            for (auto& ball : vBalls)
+            {
+                handle_collision(ball, paddle);
+            }
+
+            vBalls.erase(std::remove_if(std::begin(vBalls), std::end(vBalls), [](const Ball& b) {return b.is_destroyed(); }), std::end(vBalls));
+            vBricks.erase(std::remove_if(std::begin(vBricks), std::end(vBricks), [](const Brick& b) {return b.is_destroyed(); }), std::end(vBricks));
+
+            if (vBalls.empty())
+            {
+                lives--;
+                if (lives <= 0)
+                {
+                    gs = game_state::game_over;
+                }
+                else
+                {
+                    vBalls.emplace_back(Ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed));
+                }
             }            
         }
-        paddle.update();
-        for (auto& ball : vBalls)
-        {
-            handle_collision(ball, paddle);
-        }
-        
-        vBalls.erase(std::remove_if(std::begin(vBalls), std::end(vBalls), [](const Ball& b) {return b.is_destroyed(); }), std::end(vBalls));
-        vBricks.erase(std::remove_if(std::begin(vBricks), std::end(vBricks), [](const Brick& b) {return b.is_destroyed(); }), std::end(vBricks));
 
         // displaying
         window.clear();
@@ -226,8 +263,18 @@ int main()
             b.draw(window);
         }
         paddle.draw(window);
+               
 
         draw_text(std::string("Lives: ") + std::to_string(lives), { constants::window_width - 60, 20 }, sf::Color::Cyan, font, 15, window);
+
+        if (gs == game_state::game_over)
+        {
+            draw_text("Game Over", { constants::window_width / 2 - 120, constants::window_height / 2 - 80 }, sf::Color::Red, font, 45, window);
+        }
+        else if (gs == game_state::paused)
+        {
+            draw_text("Game Paused", { constants::window_width / 2 - 120, constants::window_height / 2 - 80 }, sf::Color::Green, font, 45, window);
+        }
         window.display();
     }
 }
