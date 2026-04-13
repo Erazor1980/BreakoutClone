@@ -11,11 +11,11 @@
 #include "paddle.h"
 
 
-void draw_text(const std::string textToDisplay, const sf::Vector2f &pos, const sf::Color &color, const sf::Font &font, sf::RenderWindow &window)
+void draw_text(const std::string textToDisplay, const sf::Vector2f &pos, const sf::Color &color, const sf::Font &font, int size, sf::RenderWindow &window)
 {
     sf::Text text(font);
     text.setString(textToDisplay);
-    text.setCharacterSize(24);
+    text.setCharacterSize(size);
     text.setFillColor(color);
     text.setPosition(pos);
 
@@ -92,6 +92,51 @@ void handle_collision(Ball& ball, Brick& brick)
     }
 }
 
+void handle_collision(Ball& ball, Paddle& paddle)
+{
+    if (!is_overlapping(ball, paddle))
+    {
+        return;
+    }
+
+    const auto ballBB = ball.get_bounding_box();
+    const auto paddleBB = paddle.get_bounding_box();
+
+    const float overlapLeft = (ballBB.position.x + ballBB.size.x) - paddleBB.position.x;
+    const float overlapRight = (paddleBB.position.x + paddleBB.size.x) - ballBB.position.x;
+    const float overlapTop = (ballBB.position.y + ballBB.size.y) - paddleBB.position.y;
+    const float overlapBottom = (paddleBB.position.y + paddleBB.size.y) - ballBB.position.y;
+
+    const float minOverlapX = std::min(overlapLeft, overlapRight);
+    const float minOverlapY = std::min(overlapTop, overlapBottom);
+
+    if (minOverlapX < minOverlapY)
+    {
+        ball.bounceHorizontal();
+        return;
+    }
+
+    if (ballBB.getCenter().y > paddleBB.position.y) // we are not bouncing up, if the ball is too low
+    {
+        return;
+    }
+
+    const float ballCenterX = ballBB.position.x + ballBB.size.x * 0.5f;
+    const float paddleCenterX = paddleBB.position.x + paddleBB.size.x * 0.5f;
+    const float deltaX = ballCenterX - paddleCenterX;
+
+    if (std::abs(deltaX) <= 5.0f)   // bounce up if ball hits paddle center +/- 5 pixels
+    {
+        ball.bounceFromPaddle(0.0f);
+        return;
+    }
+
+    const float halfPaddleWidth = paddleBB.size.x * 0.5f;
+    const float relativeHitX = deltaX / halfPaddleWidth;
+
+    ball.bounceFromPaddle(relativeHitX);
+}
+
 int main()
 {
     // Seed the random number generator once to get different results each run
@@ -104,8 +149,13 @@ int main()
         return 1;
     }
 
+    int lives = 3;
+
     Background bg(0.0f, 0.0f);
-    Ball ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed);
+    std::vector<Ball> vBalls;
+    vBalls.emplace_back(Ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed));
+    vBalls.emplace_back(Ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed));
+    //Ball ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed);
     Brick brick(200, 200, 5);
     std::vector<Brick> vBricks;
     create_bricks(vBricks);
@@ -130,7 +180,11 @@ int main()
         bool bRCurrentlyPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R);
         if (bRCurrentlyPressed && !bRPressedLastFrame)
         {
-            ball.reset(constants::window_width / 2.0f, constants::window_height / 2.0f);
+            vBalls.clear();
+            //ball.reset(constants::window_width / 2.0f, constants::window_height / 2.0f);
+            vBalls.emplace_back(Ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed));
+            vBalls.emplace_back(Ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed));
+            paddle.reset(constants::window_width / 2.0f, constants::window_height - 1.3 * constants::paddle_height);
             vBricks.clear();
             create_bricks(vBricks);
         }
@@ -139,25 +193,41 @@ int main()
         
         // updates
         bg.update();
-        ball.update();
-        for (auto& b : vBricks)
+        for (auto& ball : vBalls)
         {
-            b.update();
-            handle_collision(ball, b);
+            ball.update();
+        }
+        for (auto& brick : vBricks)
+        {
+            brick.update();
+            for (auto& ball : vBalls)
+            {
+                handle_collision(ball, brick);
+            }            
         }
         paddle.update();
-
+        for (auto& ball : vBalls)
+        {
+            handle_collision(ball, paddle);
+        }
+        
+        vBalls.erase(std::remove_if(std::begin(vBalls), std::end(vBalls), [](const Ball& b) {return b.is_destroyed(); }), std::end(vBalls));
         vBricks.erase(std::remove_if(std::begin(vBricks), std::end(vBricks), [](const Brick& b) {return b.is_destroyed(); }), std::end(vBricks));
 
         // displaying
         window.clear();
         bg.draw(window);
-        ball.draw(window);
+        for (auto& ball : vBalls)
+        {
+            ball.draw(window);
+        }
         for (auto& b : vBricks)
         {
             b.draw(window);
         }
         paddle.draw(window);
+
+        draw_text(std::string("Lives: ") + std::to_string(lives), { constants::window_width - 60, 20 }, sf::Color::Cyan, font, 15, window);
         window.display();
     }
 }

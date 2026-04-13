@@ -43,9 +43,10 @@ void Ball::update()
 	}
 	else if (bounds.position.y + bounds.size.y >= constants::window_height)
 	{
-		m_velocity.y = -m_velocity.y;
+		//m_velocity.y = -m_velocity.y;
 
-		m_sprite.setPosition({ m_sprite.getPosition().x, constants::window_height - halflSize });
+		//m_sprite.setPosition({ m_sprite.getPosition().x, constants::window_height - halflSize });
+		m_bDestroyed = true;
 	}
 }
 
@@ -74,4 +75,17 @@ void Ball::bounceVertical()
 void Ball::bounceHorizontal()
 {
 	m_velocity.x = -m_velocity.x;
+}
+
+void Ball::bounceFromPaddle(float relativeHitX)
+{
+	relativeHitX = std::clamp(relativeHitX, -1.0f, 1.0f);
+
+	const float maxAngleDeg = 55.0f;
+	const float angleDeg = 90.0f + relativeHitX * maxAngleDeg;
+	const float angleRad = angleDeg * 3.14159265f / 180.0f;
+
+	m_velocity.x = -std::cos(angleRad);
+	m_velocity.y = -std::sin(angleRad);
+	m_velocity = m_velocity.normalized() * m_speed;
 }

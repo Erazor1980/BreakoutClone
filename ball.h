@@ -14,6 +14,7 @@ public:
 
 	void bounceVertical();
 	void bounceHorizontal();
+	void bounceFromPaddle(float relativeHitX);
 private:
 	static sf::Texture m_texture;
 
