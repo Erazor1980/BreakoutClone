@@ -67,3 +67,12 @@ void Ball::draw(sf::RenderWindow& wnd)
 {
 	wnd.draw(m_sprite);
 }
+
+void Ball::bounceVertical()
+{
+	m_velocity.y = -m_velocity.y;
+}
+void Ball::bounceHorizontal()
+{
+	m_velocity.x = -m_velocity.x;
+}

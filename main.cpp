@@ -61,11 +61,33 @@ bool is_overlapping(const Entity& e1, const Entity& e2)
     return bb_e1.findIntersection(bb_e2).has_value();
 }
 
-void handle_collision(const Ball& ball, Brick& brick)
+void handle_collision(Ball& ball, Brick& brick)
 {
-    if (is_overlapping(ball, brick))
+    if (!is_overlapping(ball, brick))
     {
-        brick.damage();
+        return;
+    }
+
+    brick.damage();
+
+    const auto ballBB = ball.get_bounding_box();
+    const auto brickBB = brick.get_bounding_box();
+
+    const float overlapLeft = (ballBB.position.x + ballBB.size.x) - brickBB.position.x;
+    const float overlapRight = (brickBB.position.x + brickBB.size.x) - ballBB.position.x;
+    const float overlapTop = (ballBB.position.y + ballBB.size.y) - brickBB.position.y;
+    const float overlapBottom = (brickBB.position.y + brickBB.size.y) - ballBB.position.y;
+
+    const float minOverlapX = std::min(overlapLeft, overlapRight);
+    const float minOverlapY = std::min(overlapTop, overlapBottom);
+
+    if (minOverlapX < minOverlapY)
+    {
+        ball.bounceHorizontal();
+    }
+    else
+    {
+        ball.bounceVertical();
     }
 }
 

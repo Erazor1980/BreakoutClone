@@ -11,6 +11,9 @@ public:
 	void draw(sf::RenderWindow& wnd) override;
 
 	void reset(float x, float y);
+
+	void bounceVertical();
+	void bounceHorizontal();
 private:
 	static sf::Texture m_texture;
 
