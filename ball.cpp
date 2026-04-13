@@ -13,24 +13,41 @@ Ball::Ball(float x, float y, float speed) : Entity(m_texture)
 
 void Ball::update()
 {
-	// check for wall bounces
-	const auto bounds = m_sprite.getGlobalBounds();
-	if (bounds.position.x <= 0 || bounds.position.x + bounds.size.x >= constants::window_width)
-	{
-		m_velocity.x = -m_velocity.x;
-	}
-
-	if (bounds.position.y <= 0 || bounds.position.y + bounds.size.y >= constants::window_height)
-	{
-		m_velocity.y = -m_velocity.y;
-	}
-
 	// move ball to new position
 	m_sprite.move(m_velocity);
 
-	//todo
-	// maybe make sure, that after moving the ball is not partially outside of the screen! which can happen right now, if it is too fast
-	
+
+	// check for wall bounces
+	const auto bounds = m_sprite.getGlobalBounds();
+	const float halflSize = bounds.size.x * 0.5f;
+
+	// X axis
+	if (bounds.position.x <= 0)
+	{
+		m_velocity.x = -m_velocity.x;
+		
+		m_sprite.setPosition({ halflSize, m_sprite.getPosition().y });
+	}
+	else if (bounds.position.x + bounds.size.x >= constants::window_width)
+	{
+		m_velocity.x = -m_velocity.x;
+
+		m_sprite.setPosition({ constants::window_width - halflSize, m_sprite.getPosition().y });
+	}
+
+	// Y axis
+	if (bounds.position.y <= 0)
+	{
+		m_velocity.y = -m_velocity.y;
+
+		m_sprite.setPosition({ m_sprite.getPosition().x, halflSize });
+	}
+	else if (bounds.position.y + bounds.size.y >= constants::window_height)
+	{
+		m_velocity.y = -m_velocity.y;
+
+		m_sprite.setPosition({ m_sprite.getPosition().x, constants::window_height - halflSize });
+	}
 }
 
 void Ball::reset(float x, float y)
