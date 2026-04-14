@@ -158,7 +158,7 @@ int main()
     Background bg(0.0f, 0.0f);
     std::vector<Ball> vBalls;
     vBalls.emplace_back(Ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed));
-    vBalls.emplace_back(Ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed));
+    //vBalls.emplace_back(Ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed));
     //Ball ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed);
     Brick brick(200, 200, 5);
     std::vector<Brick> vBricks;
@@ -188,7 +188,7 @@ int main()
             vBalls.clear();
             //ball.reset(constants::window_width / 2.0f, constants::window_height / 2.0f);
             vBalls.emplace_back(Ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed));
-            vBalls.emplace_back(Ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed));
+           // vBalls.emplace_back(Ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed));
             paddle.reset(constants::window_width / 2.0f, constants::window_height - int(1.3 * constants::paddle_height));
             vBricks.clear();
             create_bricks(vBricks);
