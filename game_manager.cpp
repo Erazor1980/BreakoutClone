@@ -85,29 +85,66 @@ void GameManager::run()
 void GameManager::update()
 {
 	m_background.update();
+    
+    // Update all bricks once per frame.
+    // Bricks do not depend on a specific ball, so this stays separate.
     for (auto& brick : m_vBricks)
     {
         brick.update();
     }
 
+    // Update the paddle once per frame.
+    m_paddle.update();
+
+    // Process each ball independently.
+    // This is important because each ball can hit a different set of bricks
+    // in the same frame.
     for (auto& ball : m_vBalls)
     {
+        // First move the ball and update its wall collision logic.
         ball.update();
 
+        // These flags collect the final bounce decision for this frame.
+        // We do not bounce immediately for each brick hit.
+        // Instead, we gather all brick collisions first and then bounce once.
+        bool bBounceX = false;
+        bool bBounceY = false;
+
+        // Check the ball against all bricks.
         for (auto& brick : m_vBricks)
         {
-            if (handle_collision(ball, brick))
+            const BrickCollisionResult collisionResult = handle_collision(ball, brick);
+
+            // If this brick was hit from the side, remember that X must flip.
+            if (collisionResult.m_bBounceX)
             {
-                break;
+                bBounceX = true;
+            }
+
+            // If this brick was hit from above or below, remember that Y must flip.
+            if (collisionResult.m_bBounceY)
+            {
+                bBounceY = true;
             }
         }
+
+        // Apply the collected bounce exactly once per axis.
+        // This prevents double bouncing on the same axis in one frame.
+        if (bBounceX)
+        {
+            ball.bounceHorizontal();
+        }
+
+        if (bBounceY)
+        {
+            ball.bounceVertical();
+        }
+
+        // Paddle collision is still handled after brick collisions.
+        // That can stay as it is for now.
+        handle_collision(ball, m_paddle);
     }
 
-	m_paddle.update();
-	for (auto& ball : m_vBalls)
-	{
-		handle_collision(ball, m_paddle);
-	}
 
 	m_vBalls.erase(std::remove_if(std::begin(m_vBalls), std::end(m_vBalls),
 		[](const Ball& b) {return b.is_destroyed(); }), std::end(m_vBalls));
