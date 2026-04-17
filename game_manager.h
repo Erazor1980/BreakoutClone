@@ -12,7 +12,7 @@ public:
 
 	void run();
 
-	enum class game_state { paused, running, game_over };
+	enum class game_state { paused, running, game_over, waiting };
 
 private:
 	void createBricks();
@@ -30,6 +30,6 @@ private:
 
 	int m_lives{ 3 };
 
-	game_state m_gameState{ game_state::running };
+	game_state m_gameState{ game_state::waiting };
 	sf::Font m_font;
 };

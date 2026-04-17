@@ -71,6 +71,13 @@ void GameManager::run()
         {
             update();
         }
+        if (m_gameState == game_state::waiting)
+        {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
+            {
+                m_gameState = game_state::running;
+            }
+        }
         display();
     }
 }
@@ -112,6 +119,7 @@ void GameManager::update()
 		else
 		{
 			m_vBalls.emplace_back(Ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed));
+            m_gameState = game_state::waiting;
 		}
 	}
 }
@@ -147,11 +155,12 @@ void GameManager::display()
 void GameManager::reset()
 {
     createBricks();
+    m_vBalls.clear();
     m_vBalls.emplace_back(Ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed));
     m_paddle.reset(constants::window_width / 2.0f, constants::window_height - int(1.3 * constants::paddle_height));
 
     m_lives = 3;
-    m_gameState = game_state::running;
+    m_gameState = game_state::waiting;
 }
 
 void GameManager::draw_text(const std::string textToDisplay, const sf::Vector2f& pos, const sf::Color& color, int size)
