@@ -41,47 +41,52 @@ bool handle_collision(Ball& ball, Brick& brick)
     return true;
 }
 
-void handle_collision(Ball& ball, Paddle& paddle)
+bool handle_collision(Ball& ball, Paddle& paddle)
 {
-    if (!is_overlapping(ball, paddle))
-    {
-        return;
-    }
-
     const auto ballBB = ball.get_bounding_box();
     const auto paddleBB = paddle.get_bounding_box();
 
-    const float overlapLeft = (ballBB.position.x + ballBB.size.x) - paddleBB.position.x;
-    const float overlapRight = (paddleBB.position.x + paddleBB.size.x) - ballBB.position.x;
-    const float overlapTop = (ballBB.position.y + ballBB.size.y) - paddleBB.position.y;
-    const float overlapBottom = (paddleBB.position.y + paddleBB.size.y) - ballBB.position.y;
+    if (!ballBB.findIntersection(paddleBB).has_value())
+    {
+        return false;
+    }
 
-    const float minOverlapX = std::min(overlapLeft, overlapRight);
-    const float minOverlapY = std::min(overlapTop, overlapBottom);
+    const sf::Vector2f previousPos = ball.getPreviousPosition();
 
-    if (minOverlapX < minOverlapY)
+    const float previousTop = previousPos.y - ballBB.size.y * 0.5f;
+    const float previousBottom = previousTop + ballBB.size.y;
+    const float previousLeft = previousPos.x - ballBB.size.x * 0.5f;
+    const float previousRight = previousLeft + ballBB.size.x;
+
+    const float paddleTop = paddleBB.position.y;
+    const float paddleBottom = paddleBB.position.y + paddleBB.size.y;
+    const float paddleLeft = paddleBB.position.x;
+    const float paddleRight = paddleBB.position.x + paddleBB.size.x;
+
+    if (previousBottom <= paddleTop)
+    {
+        const float ballCenterX = ballBB.position.x + ballBB.size.x * 0.5f;
+        const float paddleCenterX = paddleBB.position.x + paddleBB.size.x * 0.5f;
+        const float deltaX = ballCenterX - paddleCenterX;
+
+        if (std::abs(deltaX) <= 5.0f)
+        {
+            ball.bounceFromPaddle(0.0f);
+            return true;
+        }
+
+        const float halfPaddleWidth = paddleBB.size.x * 0.5f;
+        const float relativeHitX = deltaX / halfPaddleWidth;
+
+        ball.bounceFromPaddle(relativeHitX);
+        return true;
+    }
+
+    if (previousRight <= paddleLeft || previousLeft >= paddleRight)
     {
         ball.bounceHorizontal();
-        return;
+        return true;
     }
 
-    if (ballBB.getCenter().y > paddleBB.position.y) // we are not bouncing up, if the ball is too low
-    {
-        return;
-    }
-
-    const float ballCenterX = ballBB.position.x + ballBB.size.x * 0.5f;
-    const float paddleCenterX = paddleBB.position.x + paddleBB.size.x * 0.5f;
-    const float deltaX = ballCenterX - paddleCenterX;
-
-    if (std::abs(deltaX) <= 5.0f)   // bounce up if ball hits paddle center +/- 5 pixels
-    {
-        ball.bounceFromPaddle(0.0f);
-        return;
-    }
-
-    const float halfPaddleWidth = paddleBB.size.x * 0.5f;
-    const float relativeHitX = deltaX / halfPaddleWidth;
-
-    ball.bounceFromPaddle(relativeHitX);
+    return false;
 }
