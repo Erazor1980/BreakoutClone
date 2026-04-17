@@ -15,9 +15,13 @@ public:
 	void bounceVertical();
 	void bounceHorizontal();
 	void bounceFromPaddle(float relativeHitX);
+
+	sf::Vector2f getPreviousPosition() const noexcept;	// 
 private:
 	static sf::Texture m_texture;
 
 	float m_speed;
+
+	sf::Vector2f m_previousPosition;
 	sf::Vector2f m_velocity;	
 };

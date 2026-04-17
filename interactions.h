@@ -5,6 +5,6 @@
 
 bool is_overlapping(const Entity& e1, const Entity& e2);
 
-void handle_collision(Ball& ball, Brick& brick);
+bool handle_collision(Ball& ball, Brick& brick);
 
 void handle_collision(Ball& ball, Paddle& paddle);

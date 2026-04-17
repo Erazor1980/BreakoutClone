@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "ball.h"
 #include "constants.h"
 
@@ -13,6 +15,8 @@ Ball::Ball(float x, float y, float speed) : Entity(m_texture)
 
 void Ball::update()
 {
+	m_previousPosition = m_sprite.getPosition();
+
 	// move ball to new position
 	m_sprite.move(m_velocity);
 
@@ -52,6 +56,7 @@ void Ball::update()
 
 void Ball::reset(float x, float y)
 {
+	m_previousPosition = { x, y };
 	m_sprite.setPosition({ x, y });
 
 	// random angle between 45 and 135° (90° would be up) for the ball moving direction
@@ -75,6 +80,11 @@ void Ball::bounceVertical()
 void Ball::bounceHorizontal()
 {
 	m_velocity.x = -m_velocity.x;
+}
+
+sf::Vector2f Ball::getPreviousPosition() const noexcept
+{
+	return m_previousPosition;
 }
 
 void Ball::bounceFromPaddle(float relativeHitX)

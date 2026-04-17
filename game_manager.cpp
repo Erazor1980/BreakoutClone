@@ -85,18 +85,23 @@ void GameManager::run()
 void GameManager::update()
 {
 	m_background.update();
-	for (auto& ball : m_vBalls)
-	{
-		ball.update();
-	}
-	for (auto& brick : m_vBricks)
-	{
-		brick.update();
-		for (auto& ball : m_vBalls)
-		{
-			handle_collision(ball, brick);
-		}
-	}
+    for (auto& brick : m_vBricks)
+    {
+        brick.update();
+    }
+
+    for (auto& ball : m_vBalls)
+    {
+        ball.update();
+
+        for (auto& brick : m_vBricks)
+        {
+            if (handle_collision(ball, brick))
+            {
+                break;
+            }
+        }
+    }
 
 	m_paddle.update();
 	for (auto& ball : m_vBalls)
