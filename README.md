@@ -17,6 +17,7 @@ Focus is on clean structure, gameplay mechanics, and incremental development.
 - Paddle collision with angle control
 - Brick system with strength (multiple hits)
 - Collision detection using AABB
+- Improved collision handling for multiple brick hits per frame
 - Lives system (3 lives)
 - Game over state
 - Restart functionality
@@ -50,6 +51,7 @@ Focus is on clean structure, gameplay mechanics, and incremental development.
 - `Paddle` → player-controlled object
 - `Background` → static rendering
 - `constants.h` → global configuration
+- `GameManager` → main game loop and collision handling
 
 ---
 
@@ -72,11 +74,12 @@ Typical setup:
 
 Core gameplay is working.
 
+Collision handling is stable and supports multiple brick hits per frame.
+
 ---
 
 ## Planned Improvements
 
-- GameManager (state handling)
 - EntityManager (lifecycle management)
 - Sound effects (bounce, brick hit, game over)
 - Multiple levels
