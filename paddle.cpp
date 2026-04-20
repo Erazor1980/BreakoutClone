@@ -30,7 +30,8 @@ void Paddle::reset(float x, float y)
 
 void Paddle::processKeyInput()
 {
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) 
+		|| sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
 	{
 		if (m_sprite.getPosition().x > 0)
 		{
@@ -41,7 +42,8 @@ void Paddle::processKeyInput()
 			m_velocity.x = 0;
 		}
 	}
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)
+		|| sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
 	{
 		if (m_sprite.getPosition().x < constants::window_width)
 		{

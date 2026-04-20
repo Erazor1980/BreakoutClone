@@ -161,6 +161,7 @@ void GameManager::update()
 		else
 		{
 			m_vBalls.emplace_back(Ball(constants::window_width / 2.0f, constants::window_height / 2.0f, constants::ball_speed));
+            m_paddle.reset(constants::window_width / 2.0f, constants::window_height - int(1.3 * constants::paddle_height));
             m_gameState = game_state::waiting;
 		}
 	}
